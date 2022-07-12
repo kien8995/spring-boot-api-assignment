@@ -1,5 +1,6 @@
 package com.example.springbootapi.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -27,4 +28,9 @@ public class Book  implements Serializable {
     @OneToMany(cascade = CascadeType.REMOVE, mappedBy = "book", fetch = FetchType.EAGER)
     @JsonIgnoreProperties("book")
     private Set<Story> storyList;
+
+    @ManyToMany(cascade = CascadeType.ALL)
+    @JoinTable(name = "book_author", joinColumns = @JoinColumn(name = "book_id"), inverseJoinColumns = @JoinColumn(name = "author_id"))
+    @JsonIgnore
+    private Set<Author> authorList;
 }

@@ -1,5 +1,6 @@
 package com.example.springbootapi;
 
+import com.example.springbootapi.models.Author;
 import com.example.springbootapi.models.Book;
 import com.example.springbootapi.models.Story;
 import com.example.springbootapi.repositories.BookRepository;
@@ -36,6 +37,16 @@ public class SpringBootApiApplication implements CommandLineRunner {
     public void run(String... args) throws Exception {
         Faker faker = new Faker();
 
+        Author author1 = new Author();
+        author1.setAuthorName(faker.name().fullName());
+        author1.setPhoneNumber(faker.phoneNumber().phoneNumber());
+        Author author2 = new Author();
+        author2.setAuthorName(faker.name().fullName());
+        author2.setPhoneNumber(faker.phoneNumber().phoneNumber());
+        Author author3 = new Author();
+        author3.setAuthorName(faker.name().fullName());
+        author3.setPhoneNumber(faker.phoneNumber().phoneNumber());
+
         Story story1 = new Story();
         story1.setStoryName(faker.harryPotter().quote());
         Story story2 = new Story();
@@ -54,6 +65,13 @@ public class SpringBootApiApplication implements CommandLineRunner {
         Set<Story> stories2 = new HashSet<>(Set.of(story3, story4));
         book1.setStoryList(stories1);
         book2.setStoryList(stories2);
+
+        book1.setAuthorList(Set.of(author1, author2));
+        book2.setAuthorList(Set.of(author3));
+
+        author1.setBookList(Set.of(book1));
+        author2.setBookList(Set.of(book1));
+        author3.setBookList(Set.of(book2));
 
         story1.setBook(book1);
         story2.setBook(book1);
