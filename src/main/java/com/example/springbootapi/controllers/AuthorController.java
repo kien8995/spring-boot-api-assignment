@@ -1,9 +1,8 @@
 package com.example.springbootapi.controllers;
 
+import com.example.springbootapi.loggers.MessageLogger;
 import com.example.springbootapi.models.Author;
 import com.example.springbootapi.services.AuthorService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -14,7 +13,8 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/authors")
 public class AuthorController {
-    Logger logger = LoggerFactory.getLogger(AuthorController.class);
+    @Autowired
+    MessageLogger messageLogger;
 
     @Autowired
     private AuthorService authorService;
@@ -22,12 +22,14 @@ public class AuthorController {
     @GetMapping
     @ResponseBody
     public ResponseEntity<List<Author>> getAuthors() {
+        messageLogger.info("Get all authors");
         return authorService.findAll().map(ResponseEntity::ok).orElse(ResponseEntity.ok(Collections.emptyList()));
     }
 
     @GetMapping("/{id}")
     @ResponseBody
     public ResponseEntity<Author> getAuthor(@PathVariable long id) {
+        messageLogger.info("Get author with id: " + id);
         return authorService.findById(id).map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
     }
 
@@ -35,9 +37,11 @@ public class AuthorController {
     @ResponseBody
     public ResponseEntity<Author> saveAuthor(@RequestBody Author author) {
         try {
-            return authorService.saveAuthor(author).map(ResponseEntity::ok).orElse(ResponseEntity.badRequest().build());
+            var response = authorService.saveAuthor(author).map(ResponseEntity::ok).orElse(ResponseEntity.badRequest().build());
+            messageLogger.info("Save author: " + author.toString());
+            return response;
         } catch (Exception e) {
-            logger.error(e.getMessage());
+            messageLogger.error(e.getMessage());
             return ResponseEntity.internalServerError().build();
         }
     }
@@ -46,9 +50,10 @@ public class AuthorController {
     public ResponseEntity<Author> updateAuthor(@PathVariable("id") long id, @RequestBody Author author) {
         try {
             authorService.updateAuthor(id, author);
+            messageLogger.info("Update author with id: " + id);
             return ResponseEntity.noContent().build();
         } catch (Exception e) {
-            logger.error(e.getMessage());
+            messageLogger.error(e.getMessage());
             return ResponseEntity.internalServerError().build();
         }
     }
@@ -57,9 +62,10 @@ public class AuthorController {
     public ResponseEntity<Author> deleteAuthor(@PathVariable("id") long id) {
         try {
             authorService.deleteAuthor(id);
+            messageLogger.info("Delete author with id: " + id);
             return ResponseEntity.noContent().build();
         } catch (Exception e) {
-            logger.error(e.getMessage());
+            messageLogger.error(e.getMessage());
             return ResponseEntity.internalServerError().build();
         }
     }

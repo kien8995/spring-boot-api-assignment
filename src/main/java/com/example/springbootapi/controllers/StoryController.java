@@ -1,9 +1,8 @@
 package com.example.springbootapi.controllers;
 
+import com.example.springbootapi.loggers.MessageLogger;
 import com.example.springbootapi.models.Story;
 import com.example.springbootapi.services.StoryService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -14,7 +13,8 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/stories")
 public class StoryController {
-    Logger logger = LoggerFactory.getLogger(StoryController.class);
+    @Autowired
+    MessageLogger messageLogger;
 
     @Autowired
     private StoryService storyService;
@@ -22,12 +22,14 @@ public class StoryController {
     @GetMapping
     @ResponseBody
     public ResponseEntity<List<Story>> getStories() {
+        messageLogger.info("Get all stories");
         return storyService.findAll().map(ResponseEntity::ok).orElse(ResponseEntity.ok(Collections.emptyList()));
     }
 
     @GetMapping("/{id}")
     @ResponseBody
     public ResponseEntity<Story> getStory(@PathVariable long id) {
+        messageLogger.info("Get story with id: " + id);
         return storyService.findById(id).map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
     }
 
@@ -35,9 +37,11 @@ public class StoryController {
     @ResponseBody
     public ResponseEntity<Story> saveStory(@RequestBody Story story) {
         try {
-            return storyService.saveStory(story).map(ResponseEntity::ok).orElse(ResponseEntity.badRequest().build());
+            var response = storyService.saveStory(story).map(ResponseEntity::ok).orElse(ResponseEntity.badRequest().build());
+            messageLogger.info("Save story: " + story.toString());
+            return response;
         } catch (Exception e) {
-            logger.error(e.getMessage());
+            messageLogger.error(e.getMessage());
             return ResponseEntity.internalServerError().build();
         }
     }
@@ -46,9 +50,10 @@ public class StoryController {
     public ResponseEntity<Story> updateStory(@PathVariable("id") long id, @RequestBody Story story) {
         try {
             storyService.updateStory(id, story);
+            messageLogger.info("Update story with id: " + id);
             return ResponseEntity.noContent().build();
         } catch (Exception e) {
-            logger.error(e.getMessage());
+            messageLogger.error(e.getMessage());
             return ResponseEntity.internalServerError().build();
         }
     }
@@ -57,9 +62,10 @@ public class StoryController {
     public ResponseEntity<Story> deleteStory(@PathVariable("id") long id) {
         try {
             storyService.deleteStory(id);
+            messageLogger.info("Delete story with id: " + id);
             return ResponseEntity.noContent().build();
         } catch (Exception e) {
-            logger.error(e.getMessage());
+            messageLogger.error(e.getMessage());
             return ResponseEntity.internalServerError().build();
         }
     }
